@@ -1,0 +1,115 @@
+<br>
+<head>
+    <title>CHSB Ticker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            font-family: 'Roboto', "Helvetica", "Arial", sans-serif;
+            font-size: 1.5em;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        input {
+            color: #ecf0f1 !important;
+        }
+
+        input[type=number] {
+            border: 1px solid #34495e;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #34495e;
+            color: #ecf0f1;
+        }
+
+        .bg-darker {
+            background-color: #243641;
+        }
+    </style>
+</head>
+<body class="container-fluid">
+
+
+<div class="card bg-darker">
+    <div class="card-body">
+        <h1><img src="https://assets-global.website-files.com/5c0e70439a14797357f10649/5e624738b81ddc7cd2144f86_logo-sb-white%202.svg">
+            Ticker</h1>
+
+        <div class="mb-3 row">
+            <label for="currentPrice" class="col-sm-6 col-form-label">Current Price <small>CHF</small></label>
+            <div class="col-sm-6">
+                <input type="text" readonly class="form-control-plaintext" id="currentPrice" value="">
+            </div>
+
+            <label for="currentValue" class="col-sm-6 col-form-label">Current Value <small>all Tokens in CHF</small></label>
+            <div class="col-sm-6">
+                <input type="text" readonly class="form-control-plaintext" id="currentValue" value="">
+            </div>
+
+            <label for="tokeninput" class="col-sm-6 col-form-label">Current Value <small>Tokens you hold</small></label>
+            <div class="col-sm-6">
+                <input type="number" class="form-control-plaintext" id="tokeninput" value="">
+            </div>
+        </div>
+
+        <div class="row">
+            <small><span>Last Update: </span><span id="timestamp"></span></small>
+        </div>
+
+
+    </div>
+</div>
+
+</body>
+
+<script>
+    let socket = new WebSocket("ws://127.0.0.1:8080/ws");
+    let chfelem = document.getElementById("currentPrice");
+    let tokeninp = document.getElementById("tokeninput");
+    let curvalelem = document.getElementById("currentValue");
+    let timestampelem = document.getElementById("timestamp");
+
+    if (localStorage.getItem('tokens')) {
+        tokeninp.value = localStorage.getItem('tokens')
+    } else {
+        tokeninp.value = 0
+    }
+    console.log("Attempting Connection...");
+
+    socket.onopen = () => {
+        socket.send("Hi From the Client!")
+    };
+
+    socket.onclose = event => {
+        socket.send("Client Closed!")
+    };
+
+    socket.onerror = error => {
+        console.log("Socket Error: ", error);
+    };
+
+    socket.onmessage = message => {
+        localStorage.setItem('tokens', tokeninp.value)
+        let dta = JSON.parse(message.data)
+        chfelem.value = dta.chf
+        let calculated = parseFloat(dta.chf) * parseFloat(tokeninp.value)
+        curvalelem.value = calculated.toFixed(2)
+        timestampelem.innerText = dta.timestamp
+    }
+</script>
+</html>
