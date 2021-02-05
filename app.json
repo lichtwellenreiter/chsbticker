@@ -1,0 +1,11 @@
+{
+    "name": "chsbticker",
+    "description": "ticker for chsb",
+    "keywords": [
+      "chsb",
+      "go",
+      "kryptocoin"
+    ],
+    "website": "http://github.com/lichtwellenreiter/chsbticker",
+    "repository": "http://github.com/lichtwellenreiter/chsbticker"
+  }
